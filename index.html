@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>HUD Generator</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #0b0d12;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    padding: 16px;
+    background: #151820;
+    border-bottom: 1px solid #303542;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.container {
+    padding: 15px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+button,
+input,
+select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #353b49;
+    font-size: 14px;
+}
+
+input,
+select {
+    background: #10131a;
+    color: white;
+    width: 100%;
+    margin-top: 8px;
+}
+
+button {
+    background: #202632;
+    color: white;
+    cursor: pointer;
+    margin-top: 8px;
+    width: 100%;
+}
+
+button:hover {
+    background: #2d3544;
+}
+
+.preview {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin-top: 15px;
+    background:
+        linear-gradient(45deg,#151820 25%,transparent 25%),
+        linear-gradient(-45deg,#151820 25%,transparent 25%),
+        linear-gradient(45deg,transparent 75%,#151820 75%),
+        linear-gradient(-45deg,transparent 75%,#151820 75%);
+    background-size: 30px 30px;
+    background-position: 0 0,0 15px,15px -15px,-15px 0;
+    border: 2px solid #343a48;
+    overflow: hidden;
+}
+
+.preview img {
+    position: absolute;
+    max-width: none;
+    border: 1px dashed #4a5568;
+}
+
+.panel {
+    background: #151820;
+    border: 1px solid #303542;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    color: #aeb6c5;
+    font-size: 13px;
+}
+
+textarea {
+    width: 100%;
+    height: 400px;
+    margin-top: 10px;
+    background: #07090d;
+    color: #b9ffb9;
+    border: 1px solid #303542;
+    border-radius: 6px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 12px;
+    resize: vertical;
+}
+
+.images-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.image-item {
+    background: #0a0d12;
+    border: 1px solid #303542;
+    border-radius: 6px;
+    padding: 10px;
+    position: relative;
+}
+
+.image-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.image-item-info {
+    font-size: 12px;
+    color: #aeb6c5;
+}
+
+.image-item button {
+    background: #d32f2f;
+    margin-top: 5px;
+    padding: 5px;
+}
+
+.image-item button:hover {
+    background: #f44336;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+    font-size: 13px;
+}
+
+.stat-box {
+    background: #0a0d12;
+    border: 1px solid #303542;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.two-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>☠ Nightmare HUD Generator Pro</h1>
+</header>
+
+<div class="container">
+
+<div class="panel">
+
+<h3>Adicionar Imagem</h3>
+
+<input
+    type="file"
+    id="imageFile"
+    accept="image/png,image/jpeg,image/webp"
+>
+
+<label>Trigger (0-9, a-z, A-Z, caracteres especiais)</label>
+
+<input
+    id="trigger"
+    type="text"
+    value="0"
+    maxlength="50"
+>
+
+<div class="two-cols">
+    <div>
+        <label>X (px)</label>
+        <input id="posX" type="number" value="0">
+    </div>
+    <div>
+        <label>Y (px)</label>
+        <input id="posY" type="number" value="0">
+    </div>
+</div>
+
+<div class="two-cols">
+    <div>
+        <label>Largura (px)</label>
+        <input id="width" type="number" value="1920">
+    </div>
+    <div>
+        <label>Altura (px)</label>
+        <input id="height" type="number" value="1080">
+    </div>
+</div>
+
+<button onclick="addImage()">
+➕ Adicionar Imagem
+</button>
+
+<button onclick="updatePreview()">
+👁️ Atualizar Preview
+</button>
+
+</div>
+
+<div class="stats">
+    <div class="stat-box">
+        <strong>Imagens Adicionadas:</strong>
+        <div id="imageCount">0/400</div>
+    </div>
+    <div class="stat-box">
+        <strong>Trigger Map:</strong>
+        <div id="triggerMap">Nenhuma</div>
+    </div>
+</div>
+
+<div class="preview" id="preview">
+</div>
+
+<div class="panel">
+
+<h3>Imagens Adicionadas</h3>
+
+<div class="images-list" id="imagesList">
+</div>
+
+</div>
+
+<div class="panel">
+
+<h3>Gerar JSON</h3>
+
+<button onclick="generateFullJSON()">
+📝 Gerar Arquivo Completo
+</button>
+
+<button onclick="copyJSON()">
+📋 Copiar JSON
+</button>
+
+<button onclick="downloadJSON()">
+⬇️ Download JSON
+</button>
+
+<button onclick="downloadAllImages()">
+⬇️ Download Todas as Imagens
+</button>
+
+<h3 style="margin-top: 20px;">JSON Gerado</h3>
+
+<textarea id="output" readonly></textarea>
+
+</div>
+
+</div>
+
+<script>
+
+let images = [];
+let currentImagePreview = null;
+
+const MAX_IMAGES = 400;
+
+/*
+========================================
+CARREGAR IMAGEM PREVIEW
+========================================
+*/
+
+document
+.getElementById("imageFile")
+.addEventListener("change", function(event) {
+
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        currentImagePreview = {
+            url: e.target.result,
+            name: file.name,
+            file: file
+        };
+        updatePreview();
+    };
+    
+    reader.readAsDataURL(file);
+
+});
+
+/*
+========================================
+ADICIONAR IMAGEM
+========================================
+*/
+
+function addImage() {
+
+    if (images.length >= MAX_IMAGES) {
+        alert(`Limite de ${MAX_IMAGES} imagens atingido!`);
+        return;
+    }
+
+    if (!currentImagePreview) {
+        alert("Selecione uma imagem primeiro!");
+        return;
+    }
+
+    const trigger = document.getElementById("trigger").value.trim();
+
+    if (!trigger) {
+        alert("Digite um trigger!");
+        return;
+    }
+
+    if (images.some(img => img.trigger === trigger)) {
+        alert(`Trigger "${trigger}" já existe!`);
+        return;
+    }
+
+    const imageObj = {
+        id: Date.now(),
+        trigger: trigger,
+        x: Number(document.getElementById("posX").value),
+        y: Number(document.getElementById("posY").value),
+        width: Number(document.getElementById("width").value),
+        height: Number(document.getElementById("height").value),
+        url: currentImagePreview.url,
+        name: currentImagePreview.name,
+        file: currentImagePreview.file
+    };
+
+    images.push(imageObj);
+
+    document.getElementById("imageFile").value = "";
+    document.getElementById("trigger").value = (images.length).toString();
+    currentImagePreview = null;
+
+    updateImagesList();
+    updatePreview();
+
+}
+
+/*
+========================================
+REMOVER IMAGEM
+========================================
+*/
+
+function removeImage(id) {
+    images = images.filter(img => img.id !== id);
+    updateImagesList();
+    updatePreview();
+}
+
+/*
+========================================
+ATUALIZAR LISTA
+========================================
+*/
+
+function updateImagesList() {
+
+    const list = document.getElementById("imagesList");
+    list.innerHTML = "";
+
+    images.forEach(img => {
+        const div = document.createElement("div");
+        div.className = "image-item";
+
+        div.innerHTML = `
+            <img src="${img.url}" alt="">
+            <div class="image-item-info">
+                <strong>Trigger:</strong> ${escapeHtml(img.trigger)}<br>
+                <strong>Posição:</strong> ${img.x}, ${img.y}<br>
+                <strong>Tamanho:</strong> ${img.width}x${img.height}<br>
+                <strong>Arquivo:</strong> ${img.name}
+            </div>
+            <button onclick="removeImage(${img.id})">🗑️ Remover</button>
+        `;
+
+        list.appendChild(div);
+    });
+
+    const count = document.getElementById("imageCount");
+    count.textContent = `${images.length}/${MAX_IMAGES}`;
+
+    const triggerMap = document.getElementById("triggerMap");
+    if (images.length > 0) {
+        triggerMap.textContent = images.map(img => img.trigger).join(", ");
+    } else {
+        triggerMap.textContent = "Nenhuma";
+    }
+
+}
+
+/*
+========================================
+PREVIEW
+========================================
+*/
+
+function updatePreview() {
+
+    const preview = document.getElementById("preview");
+    preview.innerHTML = "";
+
+    images.forEach(img => {
+        const imgEl = document.createElement("img");
+        imgEl.src = img.url;
+        imgEl.style.left = img.x + "px";
+        imgEl.style.top = img.y + "px";
+        imgEl.style.width = img.width + "px";
+        imgEl.style.height = img.height + "px";
+        preview.appendChild(imgEl);
+    });
+
+}
+
+/*
+========================================
+GERAR JSON COMPLETO
+========================================
+*/
+
+function generateFullJSON() {
+
+    if (images.length === 0) {
+        alert("Adicione pelo menos uma imagem!");
+        return;
+    }
+
+    let json = {
+        "namespace": "hud",
+        "hud_title_text/title_frame/title": {
+            "modifications": [
+                {
+                    "array_name": "bindings",
+                    "operation": "insert_back",
+                    "value": {
+                        "binding_type": "view",
+                        "source_property_name": "(not ((#text = '0') or (#text = '1') or (#text = '2') or (#text = '3') or (#text = '4') or (#text = '5') or (#text = '6') or (#text = '7') or (#text = '8') or (#text = '9')))",
+                        "target_property_name": "#visible"
+                    }
+                }
+            ]
+        },
+        "root_panel": {
+            "modifications": [
+                {
+                    "array_name": "controls",
+                    "operation": "insert_front",
+                    "value": []
+                }
+            ]
+        },
+        "wait3": {
+            "anim_type": "wait",
+            "duration": 3,
+            "next": "@hud.fade"
+        },
+        "fade": {
+            "anim_type": "alpha",
+            "duration": 0.2,
+            "from": 1,
+            "to": 0
+        }
+    };
+
+    // Gerar controls para root_panel
+    images.forEach((img, idx) => {
+        json["root_panel"]["modifications"][0]["value"].push({
+            [`v${idx + 1}@hud.v${idx + 1}_factory`]: {}
+        });
+    });
+
+    // Gerar imagens
+    images.forEach((img, idx) => {
+
+        const textureName = img.name.replace(/\.[^/.]+$/, "");
+
+        json[idx.toString()] = {
+            "type": "image",
+            "texture": `textures/ui/${textureName}`,
+            "anchor_from": "top_left",
+            "anchor_to": "top_left",
+            "size": [img.width, img.height],
+            "offset": [img.x, img.y],
+            "fill": true,
+            "$fit_to_width": true,
+            "$fit_to_height": true,
+            "$keep_aspect_ratio": false,
+            "layer": 999999,
+            "anims": ["@hud.wait3"],
+            "bindings": [
+                { "binding_name": "#hud_title_text_string" },
+                {
+                    "binding_type": "view",
+                    "source_property_name": `(#hud_title_text_string = '${img.trigger}')`,
+                    "target_property_name": "#visible"
+                }
+            ]
+        };
+    });
+
+    // Gerar factories
+    images.forEach((img, idx) => {
+        json[`v${idx + 1}_factory`] = {
+            "type": "panel",
+            "factory": {
+                "name": "hud_title_text_factory",
+                "control_ids": {
+                    "hud_title_text": `${idx}@hud.${idx}`
+                }
+            }
+        };
+    });
+
+    document.getElementById("output").value = JSON.stringify(json, null, 4);
+
+}
+
+/*
+========================================
+COPIAR JSON
+========================================
+*/
+
+function copyJSON() {
+
+    const output = document.getElementById("output");
+
+    if (!output.value) {
+        generateFullJSON();
+    }
+
+    navigator.clipboard.writeText(output.value);
+    alert("JSON copiado!");
+
+}
+
+/*
+========================================
+DOWNLOAD JSON
+========================================
+*/
+
+function downloadJSON() {
+
+    const output = document.getElementById("output");
+
+    if (!output.value) {
+        generateFullJSON();
+    }
+
+    const blob = new Blob([output.value], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "hud_screen.json";
+    a.click();
+    URL.revokeObjectURL(url);
+
+}
+
+/*
+========================================
+DOWNLOAD IMAGENS
+========================================
+*/
+
+async function downloadAllImages() {
+
+    if (images.length === 0) {
+        alert("Nenhuma imagem para baixar!");
+        return;
+    }
+
+    // Simples: copia triggers para clipboard com nomes de arquivo
+    const fileList = images
+        .map(img => `${img.trigger} → ${img.name}`)
+        .join("\n");
+
+    alert("Nomes das imagens:\n\n" + fileList + "\n\nCopie as imagens para a pasta textures/ui/ do seu addon!");
+
+}
+
+/*
+========================================
+ESCAPE HTML
+========================================
+*/
+
+function escapeHtml(text) {
+    const map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+</script>
+
+</body>
+</html>
