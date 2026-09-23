@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>HUD Generator Pro</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #0b0d12;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    padding: 10px 16px;
+    background: #151820;
+    border-bottom: 1px solid #303542;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.doc-button {
+    background: #2d3544;
+    color: white;
+    border: 1px solid #353b49;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.doc-button:hover {
+    background: #3d4554;
+}
+
+.container {
+    padding: 10px 15px;
+    max-width: 1400px;
+    margin: auto;
+}
+
+.tabs-wrapper {
+    position: sticky;
+    top: 0;
+    background: #0b0d12;
+    z-index: 100;
+    padding: 0 0 8px 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #303542;
+}
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tab-button {
+    background: #151820;
+    color: #aeb6c5;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.tab-button.active {
+    color: white;
+    border-bottom-color: #4a9eff;
+}
+
+.tab-button:hover {
+    background: #1a1e27;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+button,
+input,
+select {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #353b49;
+    font-size: 13px;
+}
+
+input,
+select {
+    background: #10131a;
+    color: white;
+    width: 100%;
+    margin-top: 4px;
+}
+
+button {
+    background: #202632;
+    color: white;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #2d3544;
+}
+
+button.primary {
+    background: #4a9eff;
+    border-color: #4a9eff;
+}
+
+button.primary:hover {
+    background: #357abd;
+}
+
+button.success {
+    background: #4caf50;
+    border-color: #4caf50;
+}
+
+button.success:hover {
+    background: #388e3c;
+}
+
+button.danger {
+    background: #d32f2f;
+    border-color: #d32f2f;
+}
+
+button.danger:hover {
+    background: #b71c1c;
+}
+
+.preview {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin-top: 10px;
+    background:
+        linear-gradient(45deg,#151820 25%,transparent 25%),
+        linear-gradient(-45deg,#151820 25%,transparent 25%),
+        linear-gradient(45deg,transparent 75%,#151820 75%),
+        linear-gradient(-45deg,transparent 75%,#151820 75%);
+    background-size: 20px 20px;
+    background-position: 0 0,0 10px,10px -10px,-10px 0;
+    border: 2px solid #343a48;
+    overflow: hidden;
+}
+
+.preview img {
+    position: absolute;
+    max-width: none;
+    border: 1px dashed #4a5568;
+}
+
+.panel {
+    background: #151820;
+    border: 1px solid #303542;
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+label {
+    display: block;
+    margin-top: 6px;
+    color: #aeb6c5;
+    font-size: 12px;
+}
+
+textarea {
+    width: 100%;
+    height: 220px;
+    margin-top: 8px;
+    background: #07090d;
+    color: #b9ffb9;
+    border: 1px solid #303542;
+    border-radius: 6px;
+    padding: 8px;
+    font-family: monospace;
+    font-size: 12px;
+    resize: vertical;
+}
+
+.images-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.image-item {
+    background: #0a0d12;
+    border: 1px solid #303542;
+    border-radius: 6px;
+    padding: 8px;
+    position: relative;
+}
+
+.image-item img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+
+.image-item-info {
+    font-size: 11px;
+    color: #aeb6c5;
+    line-height: 1.3;
+}
+
+.image-item button {
+    background: #d32f2f;
+    margin-top: 6px;
+    padding: 4px;
+    width: 100%;
+    font-size: 11px;
+}
+
+.image-item button:hover {
+    background: #f44336;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.stat-box {
+    background: #0a0d12;
+    border: 1px solid #303542;
+    border-radius: 6px;
+    padding: 8px 12px;
+}
+
+.two-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #4a9eff;
+    margin-top: 8px;
+    user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    cursor: pointer;
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.json-list,
+.image-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 8px;
+}
+
+.json-item {
+    background: #0a0d12;
+    border: 1px solid #303542;
+    border-radius: 6px;
+    padding: 8px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item-info {
+    flex: 1;
+    word-break: break-all;
+    font-size: 12px;
+}
+
+.item-actions {
+    display: flex;
+    gap: 5px;
+    margin-left: 8px;
+}
+
+.item-actions button {
+    margin: 0;
+    padding: 4px 8px;
+    font-size: 11px;
+    width: auto;
+}
+
+.success-message {
+    background: #1b5e20;
+    border: 1px solid #4caf50;
+    color: #81c784;
+    padding: 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    display: none;
+}
+
+.success-message.show {
+    display: block;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h2 {
+    margin-top: 0;
+    font-size: 16px;
+}
+
+h3 {
+    font-size: 13px;
+    color: #aeb6c5;
+    margin-top: 10px;
+    margin-bottom: 6px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    textarea {
+        height: 200px;
+    }
+
+    .tabs {
+        overflow-x: auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🎨 HUD Generator Pro</h1>
+    <div class="header-buttons">
+        <a href="#" class="doc-button" onclick="openDocumentation(); return false;">
+            📚 Documentação
+        </a>
+    </div>
+</header>
+
+<div class="container">
+
+<div class="success-message" id="successMsg"></div>
+
+<div class="tabs-wrapper">
+    <div class="tabs">
+        <button class="tab-button active" onclick="switchTab('generator')">🎯 HUD Generator</button>
+        <button class="tab-button" onclick="switchTab('ui_defs')">📐 _ui_defs.json</button>
+    </div>
+</div>
+
+<!-- ====================================
+     TAB: HUD GENERATOR
+     ==================================== -->
+<div id="generator" class="tab-content active">
+
+<div class="panel">
+    <h3>Adicionar Imagem</h3>
+
+    <input
+        type="file"
+        id="imageFile"
+        accept="image/png,image/jpeg,image/webp"
+    >
+
+    <label>Trigger (0-9, a-z, A-Z, caracteres especiais)</label>
+    <input
+        id="trigger"
+        type="text"
+        value="0"
+        maxlength="50"
+    >
+
+    <label class="checkbox-label">
+        <input type="checkbox" id="isFullScreen" onchange="toggleFullScreenOptions()">
+        🖥️ Preencher Tela / Fill (Full Screen)
+    </label>
+
+    <div id="dimensionsBox">
+        <div class="two-cols">
+            <div>
+                <label>X (px)</label>
+                <input id="posX" type="number" value="0">
+            </div>
+            <div>
+                <label>Y (px)</label>
+                <input id="posY" type="number" value="0">
+            </div>
+        </div>
+
+        <div class="two-cols">
+            <div>
+                <label>Largura (px)</label>
+                <input id="width" type="number" value="1920">
+            </div>
+            <div>
+                <label>Altura (px)</label>
+                <input id="height" type="number" value="1080">
+            </div>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="primary" onclick="addImage()">➕ Adicionar Imagem</button>
+        <button onclick="updatePreview()">👁️ Atualizar Preview</button>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat-box">
+        <strong>Imagens Adicionadas:</strong>
+        <div id="imageCount">0/7000</div>
+    </div>
+    <div class="stat-box">
+        <strong>Trigger Map:</strong>
+        <div id="triggerMap">Nenhuma</div>
+    </div>
+</div>
+
+<div class="preview" id="preview">
+</div>
+
+<div class="panel">
+    <h3>Imagens Adicionadas</h3>
+    <div class="images-list" id="imagesList">
+    </div>
+</div>
+
+<div class="panel">
+    <h3>Gerar JSON</h3>
+
+    <div class="button-group">
+        <button class="primary" onclick="generateFullJSON()">📝 Gerar Arquivo Completo</button>
+        <button class="primary" onclick="copyJSON()">📋 Copiar JSON</button>
+        <button class="primary" onclick="downloadJSON()">⬇️ Download JSON</button>
+        <button class="primary" onclick="downloadAllImages()">⬇️ Download Todas as Imagens</button>
+    </div>
+
+    <h3 style="margin-top: 12px;">JSON Gerado</h3>
+
+    <textarea id="output" readonly></textarea>
+</div>
+
+</div>
+
+<!-- ====================================
+     TAB: _UI_DEFS.JSON
+     ==================================== -->
+<div id="ui_defs" class="tab-content">
+
+<div class="panel">
+    <h2>Gerador de _ui_defs.json</h2>
+    <p style="font-size: 12px; color: #aeb6c5; margin: 4px 0 0 0;">Configure os arquivos JSON da sua HUD que serão referenciados.</p>
+</div>
+
+<div class="panel">
+    <h2>Adicionar Arquivos</h2>
+    
+    <label>Caminho do arquivo (Ex: ui/hud_screen.json)</label>
+    <input type="text" id="jsonPath" placeholder="ui/hud_screen.json" value="ui/hud_screen.json">
+
+    <button class="primary" onclick="addJsonPath()">➕ Adicionar Arquivo</button>
+
+    <h3>Arquivos Adicionados</h3>
+    <ul class="json-list" id="jsonPathsList"></ul>
+</div>
+
+<div class="panel">
+    <h2>Preview do _ui_defs.json</h2>
+    
+    <textarea id="previewJson" style="height: 180px;" readonly></textarea>
+    
+    <div class="button-group">
+        <button class="success" onclick="generateUiDefs()">✨ Gerar _ui_defs.json</button>
+        <button class="primary" onclick="copyUiDefsJson()">📋 Copiar</button>
+        <button class="primary" onclick="downloadUiDefsJson()">⬇️ Baixar</button>
+        <button class="danger" onclick="clearUiDefsPaths()">🗑️ Limpar</button>
+    </div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let images = [];
+let jsonPaths = [];
+let currentImagePreview = null;
+
+const MAX_IMAGES = 7000;
+
+/*
+========================================
+DESATIVAR CAMPOS DE POSIÇÃO EM FULLSCREEN
+========================================
+*/
+function toggleFullScreenOptions() {
+    const isFS = document.getElementById("isFullScreen").checked;
+    const posX = document.getElementById("posX");
+    const posY = document.getElementById("posY");
+    const width = document.getElementById("width");
+    const height = document.getElementById("height");
+
+    if (isFS) {
+        posX.disabled = true;
+        posY.disabled = true;
+        width.disabled = true;
+        height.disabled = true;
+        posX.style.opacity = "0.5";
+        posY.style.opacity = "0.5";
+        width.style.opacity = "0.5";
+        height.style.opacity = "0.5";
+    } else {
+        posX.disabled = false;
+        posY.disabled = false;
+        width.disabled = false;
+        height.disabled = false;
+        posX.style.opacity = "1";
+        posY.style.opacity = "1";
+        width.style.opacity = "1";
+        height.style.opacity = "1";
+    }
+}
+
+/*
+========================================
+TABS
+========================================
+*/
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+}
+
+/*
+========================================
+MENSAGENS DE SUCESSO
+========================================
+*/
+
+function showSuccess(message) {
+    const msg = document.getElementById('successMsg');
+    msg.textContent = message;
+    msg.classList.add('show');
+    setTimeout(() => {
+        msg.classList.remove('show');
+    }, 3000);
+}
+
+/*
+========================================
+HUD GENERATOR - CARREGAR IMAGEM
+========================================
+*/
+
+document
+.getElementById("imageFile")
+.addEventListener("change", function(event) {
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        currentImagePreview = {
+            url: e.target.result,
+            name: file.name,
+            file: file
+        };
+        updatePreview();
+    };
+    
+    reader.readAsDataURL(file);
+});
+
+/*
+========================================
+HUD GENERATOR - ADICIONAR IMAGEM
+========================================
+*/
+
+function addImage() {
+    if (images.length >= MAX_IMAGES) {
+        alert(`Limite de ${MAX_IMAGES} imagens atingido!`);
+        return;
+    }
+
+    if (!currentImagePreview) {
+        alert("Selecione uma imagem primeiro!");
+        return;
+    }
+
+    const trigger = document.getElementById("trigger").value.trim();
+
+    if (!trigger) {
+        alert("Digite um trigger!");
+        return;
+    }
+
+    if (images.some(img => img.trigger === trigger)) {
+        alert(`Trigger "${trigger}" já existe!`);
+        return;
+    }
+
+    const isFullScreen = document.getElementById("isFullScreen").checked;
+
+    const imageObj = {
+        id: Date.now(),
+        trigger: trigger,
+        isFullScreen: isFullScreen,
+        x: isFullScreen ? 0 : Number(document.getElementById("posX").value),
+        y: isFullScreen ? 0 : Number(document.getElementById("posY").value),
+        width: isFullScreen ? "100%" : Number(document.getElementById("width").value),
+        height: isFullScreen ? "100%" : Number(document.getElementById("height").value),
+        url: currentImagePreview.url,
+        name: currentImagePreview.name,
+        file: currentImagePreview.file
+    };
+
+    images.push(imageObj);
+
+    document.getElementById("imageFile").value = "";
+    document.getElementById("trigger").value = (images.length).toString();
+    currentImagePreview = null;
+
+    updateImagesList();
+    updatePreview();
+    showSuccess(`Imagem adicionada!`);
+}
+
+/*
+========================================
+HUD GENERATOR - REMOVER IMAGEM
+========================================
+*/
+
+function removeImage(id) {
+    images = images.filter(img => img.id !== id);
+    updateImagesList();
+    updatePreview();
+}
+
+/*
+========================================
+HUD GENERATOR - ATUALIZAR LISTA
+========================================
+*/
+
+function updateImagesList() {
+    const list = document.getElementById("imagesList");
+    list.innerHTML = "";
+
+    images.forEach(img => {
+        const div = document.createElement("div");
+        div.className = "image-item";
+
+        const sizeText = img.isFullScreen ? "Fill (Tela Cheia)" : `${img.width}x${img.height}`;
+        const posText = img.isFullScreen ? "0, 0 (Fill)" : `${img.x}, ${img.y}`;
+
+        div.innerHTML = `
+            <div>
+                <img src="${img.url}" alt="">
+                <div class="image-item-info">
+                    <strong>Trigger:</strong> ${escapeHtml(img.trigger)}<br>
+                    <strong>Posição:</strong> ${posText}<br>
+                    <strong>Tamanho:</strong> ${sizeText}<br>
+                    <strong>Arquivo:</strong> ${img.name}
+                </div>
+            </div>
+            <button onclick="removeImage(${img.id})">🗑️ Remover</button>
+        `;
+
+        list.appendChild(div);
+    });
+
+    const count = document.getElementById("imageCount");
+    count.textContent = `${images.length}/${MAX_IMAGES}`;
+
+    const triggerMap = document.getElementById("triggerMap");
+    if (images.length > 0) {
+        triggerMap.textContent = images.map(img => img.trigger).join(", ");
+    } else {
+        triggerMap.textContent = "Nenhuma";
+    }
+}
+
+/*
+========================================
+HUD GENERATOR - PREVIEW
+========================================
+*/
+
+function updatePreview() {
+    const preview = document.getElementById("preview");
+    preview.innerHTML = "";
+
+    images.forEach(img => {
+        const imgEl = document.createElement("img");
+        imgEl.src = img.url;
+        if (img.isFullScreen) {
+            imgEl.style.left = "0px";
+            imgEl.style.top = "0px";
+            imgEl.style.width = "100%";
+            imgEl.style.height = "100%";
+            imgEl.style.objectFit = "cover";
+        } else {
+            imgEl.style.left = img.x + "px";
+            imgEl.style.top = img.y + "px";
+            imgEl.style.width = img.width + "px";
+            imgEl.style.height = img.height + "px";
+            imgEl.style.objectFit = "fill";
+        }
+        preview.appendChild(imgEl);
+    });
+}
+
+/*
+========================================
+HUD GENERATOR - GERAR JSON COMPLETO
+========================================
+*/
+
+function generateFullJSON() {
+    if (images.length === 0) {
+        alert("Adicione pelo menos uma imagem!");
+        return;
+    }
+
+    let json = {
+        "namespace": "hud",
+        "hud_title_text/title_frame/title": {
+            "modifications": [
+                {
+                    "array_name": "bindings",
+                    "operation": "insert_back",
+                    "value": {
+                        "binding_type": "view",
+                        "source_property_name": "(not ((#text = '0') or (#text = '1') or (#text = '2') or (#text = '3') or (#text = '4') or (#text = '5') or (#text = '6') or (#text = '7') or (#text = '8') or (#text = '9')))",
+                        "target_property_name": "#visible"
+                    }
+                }
+            ]
+        },
+        "root_panel": {
+            "modifications": [
+                {
+                    "array_name": "controls",
+                    "operation": "insert_front",
+                    "value": []
+                }
+            ]
+        },
+        "wait3": {
+            "anim_type": "wait",
+            "duration": 3,
+            "next": "@hud.fade"
+        },
+        "fade": {
+            "anim_type": "alpha",
+            "duration": 0.2,
+            "from": 1,
+            "to": 0
+        }
+    };
+
+    // Gerar controls para root_panel
+    images.forEach((img, idx) => {
+        json["root_panel"]["modifications"][0]["value"].push({
+            [`v${idx + 1}@hud.v${idx + 1}_factory`]: {}
+        });
+    });
+
+    // Gerar imagens
+    images.forEach((img, idx) => {
+        const textureName = img.name.replace(/\.[^/.]+$/, "");
+
+        const imageDefinition = {
+            "type": "image",
+            "texture": `textures/ui/${textureName}`,
+            "layer": 999999,
+            "anims": ["@hud.wait3"],
+            "bindings": [
+                { "binding_name": "#hud_title_text_string" },
+                {
+                    "binding_type": "view",
+                    "source_property_name": `(#hud_title_text_string = '${img.trigger}')`,
+                    "target_property_name": "#visible"
+                }
+            ]
+        };
+
+        if (img.isFullScreen) {
+            imageDefinition["fill"] = true;
+            imageDefinition["size"] = ["100%", "100%"];
+            imageDefinition["anchor_from"] = "center";
+            imageDefinition["anchor_to"] = "center";
+            imageDefinition["offset"] = [0, 0];
+            imageDefinition["$keep_aspect_ratio"] = false;
+        } else {
+            imageDefinition["anchor_from"] = "top_left";
+            imageDefinition["anchor_to"] = "top_left";
+            imageDefinition["size"] = [img.width, img.height];
+            imageDefinition["offset"] = [img.x, img.y];
+            imageDefinition["fill"] = true;
+            imageDefinition["$fit_to_width"] = true;
+            imageDefinition["$fit_to_height"] = true;
+            imageDefinition["$keep_aspect_ratio"] = false;
+        }
+
+        json[idx.toString()] = imageDefinition;
+    });
+
+    // Gerar factories
+    images.forEach((img, idx) => {
+        json[`v${idx + 1}_factory`] = {
+            "type": "panel",
+            "factory": {
+                "name": "hud_title_text_factory",
+                "control_ids": {
+                    "hud_title_text": `${idx}@hud.${idx}`
+                }
+            }
+        };
+    });
+
+    document.getElementById("output").value = JSON.stringify(json, null, 4);
+    showSuccess('JSON gerado!');
+}
+
+/*
+========================================
+HUD GENERATOR - COPIAR JSON
+========================================
+*/
+
+function copyJSON() {
+    const output = document.getElementById("output");
+
+    if (!output.value) {
+        generateFullJSON();
+    }
+
+    navigator.clipboard.writeText(output.value);
+    showSuccess('JSON copiado!');
+}
+
+/*
+========================================
+HUD GENERATOR - DOWNLOAD JSON
+========================================
+*/
+
+function downloadJSON() {
+    const output = document.getElementById("output");
+
+    if (!output.value) {
+        generateFullJSON();
+    }
+
+    const blob = new Blob([output.value], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "hud_screen.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    showSuccess('JSON baixado!');
+}
+
+/*
+========================================
+HUD GENERATOR - DOWNLOAD IMAGENS
+========================================
+*/
+
+function downloadAllImages() {
+    if (images.length === 0) {
+        alert("Nenhuma imagem para baixar!");
+        return;
+    }
+
+    const fileList = images
+        .map(img => `${img.trigger} → ${img.name}`)
+        .join("\n");
+
+    alert("Nomes das imagens:\n\n" + fileList + "\n\nCopie as imagens para a pasta textures/ui/ do seu addon!");
+}
+
+/*
+========================================
+_UI_DEFS.JSON - ADICIONAR ARQUIVO
+========================================
+*/
+
+function addJsonPath() {
+    const path = document.getElementById('jsonPath').value.trim();
+
+    if (!path) {
+        alert('Digite um caminho de arquivo!');
+        return;
+    }
+
+    if (jsonPaths.includes(path)) {
+        alert('Este arquivo já foi adicionado!');
+        return;
+    }
+
+    jsonPaths.push(path);
+    document.getElementById('jsonPath').value = 'ui/hud_screen.json';
+
+    updateJsonPathsList();
+    updateJsonPreview();
+    showSuccess(`Arquivo "${path}" adicionado!`);
+}
+
+/*
+========================================
+_UI_DEFS.JSON - REMOVER ARQUIVO
+========================================
+*/
+
+function removeJsonPath(index) {
+    jsonPaths.splice(index, 1);
+    updateJsonPathsList();
+    updateJsonPreview();
+}
+
+/*
+========================================
+_UI_DEFS.JSON - ATUALIZAR LISTA
+========================================
+*/
+
+function updateJsonPathsList() {
+    const list = document.getElementById('jsonPathsList');
+    list.innerHTML = '';
+
+    jsonPaths.forEach((path, index) => {
+        const li = document.createElement('li');
+        li.className = 'json-item';
+        li.innerHTML = `
+            <div class="item-info">
+                <strong>📄 ${escapeHtml(path)}</strong>
+            </div>
+            <div class="item-actions">
+                <button onclick="removeJsonPath(${index})">🗑️</button>
+            </div>
+        `;
+        list.appendChild(li);
+    });
+}
+
+/*
+========================================
+_UI_DEFS.JSON - ATUALIZAR PREVIEW
+========================================
+*/
+
+function updateJsonPreview() {
+    if (jsonPaths.length === 0) {
+        document.getElementById('previewJson').value = '{\n  "ui_defs": []\n}';
+        return;
+    }
+
+    const uiDefs = {
+        ui_defs: jsonPaths
+    };
+
+    document.getElementById('previewJson').value = JSON.stringify(uiDefs, null, 2);
+}
+
+/*
+========================================
+_UI_DEFS.JSON - GERAR
+========================================
+*/
+
+function generateUiDefs() {
+    if (jsonPaths.length === 0) {
+        alert('Adicione pelo menos um arquivo!');
+        return;
+    }
+
+    const uiDefs = {
+        ui_defs: jsonPaths
+    };
+
+    const preview = document.getElementById('previewJson');
+    preview.value = JSON.stringify(uiDefs, null, 2);
+    showSuccess('_ui_defs.json pronto para copiar ou baixar!');
+}
+
+/*
+========================================
+_UI_DEFS.JSON - COPIAR
+========================================
+*/
+
+function copyUiDefsJson() {
+    const preview = document.getElementById('previewJson');
+    if (!preview.value) {
+        alert('Gere o JSON primeiro!');
+        return;
+    }
+    navigator.clipboard.writeText(preview.value);
+    showSuccess('_ui_defs.json copiado!');
+}
+
+/*
+========================================
+_UI_DEFS.JSON - DOWNLOAD
+========================================
+*/
+
+function downloadUiDefsJson() {
+    if (jsonPaths.length === 0) {
+        alert('Adicione pelo menos um arquivo!');
+        return;
+    }
+
+    const uiDefs = {
+        ui_defs: jsonPaths
+    };
+
+    const blob = new Blob([JSON.stringify(uiDefs, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '_ui_defs.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showSuccess('_ui_defs.json baixado!');
+}
+
+/*
+========================================
+_UI_DEFS.JSON - LIMPAR
+========================================
+*/
+
+function clearUiDefsPaths() {
+    if (confirm('Tem certeza? Isso limpará todos os arquivos.')) {
+        jsonPaths = [];
+        updateJsonPathsList();
+        updateJsonPreview();
+        showSuccess('Tudo limpo!');
+    }
+}
+
+/*
+========================================
+UTILITÁRIOS
+========================================
+*/
+
+function escapeHtml(text) {
+    const map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+function openDocumentation() {
+    const docURL = "https://github.com/PedroPocketengineOficial/hudgenerator/blob/main/README.md";
+    window.open(docURL, "_blank");
+}
+
+// Inicializar preview
+updateJsonPreview();
+
+</script>
+
+</body>
+</html>
